@@ -1,0 +1,5 @@
+[AutoRun]
+open=Reasonix\启动Reasonix.bat
+action=启动 Reasonix
+label=Reasonix Portable
+icon=Reasonix\reasonix-desktop.exe,0

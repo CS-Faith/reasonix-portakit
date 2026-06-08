@@ -11,7 +11,7 @@
 
 ### 你遇到过吗？
 
-辛辛苦苦调教好的 Reasonix——配了一堆 Skill、挂了 MCP 服务器、攒了几十轮对话、沉淀了项目记忆——换个电脑就**全没了**。
+辛辛苦苦调教好的 Reasonix——配了一堆 Skill、挂了 MCP 服务器、攒了几十轮对话、沉淀了项目记忆——换个电脑就**全没了**。哪怕你把整个文件夹原封不动复制过去，打开依然是空白。
 
 不是数据丢了，是 Reasonix 有几个"硬伤"：
 
@@ -88,7 +88,7 @@ Your-Reasonix/
 
 ### The Problem
 
-You've tuned Reasonix to perfection — skills installed, MCP servers running, dozens of conversations, project memories built up. Then you move to a new computer and **everything is gone**.
+You've tuned Reasonix to perfection — skills installed, MCP servers running, dozens of conversations, project memories built up. Then you move to a new computer and **everything is gone**. Even if you copy the entire folder over, it still opens blank.
 
 It's not lost. It's locked behind four hardcoded assumptions:
 

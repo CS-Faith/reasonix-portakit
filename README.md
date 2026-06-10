@@ -1,5 +1,15 @@
 # Reasonix PortaKit · 便携工具箱
 
+<p align="center">
+  <img alt="License" src="https://img.shields.io/github/license/CS-Faith/reasonix-portakit?style=flat-square">
+  <img alt="Stars" src="https://img.shields.io/github/stars/CS-Faith/reasonix-portakit?style=flat-square">
+  <img alt="Platform" src="https://img.shields.io/badge/Platform-Windows-blue?style=flat-square">
+  <img alt="Language" src="https://img.shields.io/badge/Language-PowerShell-blue?style=flat-square">
+  <img alt="Last Commit" src="https://img.shields.io/github/last-commit/CS-Faith/reasonix-portakit?style=flat-square">
+  <img alt="Size" src="https://img.shields.io/github/repo-size/CS-Faith/reasonix-portakit?style=flat-square">
+</p>
+
+
 > **带走你的 Reasonix。** 把整个 Reasonix 文件夹拷进 U 盘或同步盘，插哪台电脑都能直接用——记忆、对话、Skill、MCP，全部跟着你走。
 
 [English](#english) · [简体中文](#chinese)

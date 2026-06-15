@@ -1,55 +1,54 @@
-# Reasonix 便携工具箱
+# Reasonix PortaKit
 
-> 一套完整的 Reasonix 配置管理方案：0.5X 时代实现便携即插即用，1.X 时代实现无缝升级迁移。
-
----
-
-## 能做什么
-
-本仓库提供两个工具，覆盖 Reasonix 从 0.5X 到 1.X 的完整生命周期：
-
-| 工具 | 适用版本 | 用途 |
-|------|:---:|------|
-| **PortaKit** | 0.5X | 让 Reasonix 变成真正的便携版——U盘/同步盘即插即用 |
-| **迁移升级助手** | 0.5X → 1.X | 将旧版对话记录、MCP、记忆、Skill 完整迁移到新版 |
+> 让 Reasonix 真正便携——0.5X 路径重定向，1.X NTFS Junction。U 盘/同步盘即插即用。
 
 ---
 
-## 工具一：PortaKit（0.5X 便携版）
+## 为什么有这个仓库
 
-### 解决了什么问题？
+Reasonix 默认把数据存在 C 盘，换电脑之后记忆、对话、Skill、MCP 全部消失。PortaKit 在每次启动时自动把数据路径重定向到当前文件夹，实现真正的便携。
 
-辛辛苦苦调教好的 Reasonix——配了一堆 Skill、挂了 MCP 服务器、攒了几十轮对话、沉淀了项目记忆——换个电脑就全没了。哪怕把整个文件夹原封不动复制过去，打开依然是空白。
+本仓库提供两个版本的 PortaKit，分别针对 0.5X 和 1.X：
 
-**不是数据丢了，是 Reasonix 有几个硬伤：**
+| 版本 | 适用 | 原理 | 文件 |
+|------|:---:|------|------|
+| **PortaKit for 0.5X** | Reasonix 0.5X | `HOME` / `USERPROFILE` 重定向 | bat + ps1 + js |
+| **PortaKit for 1.X** | Reasonix 1.X | NTFS Junction（`mklink /J`） | 仅一个 bat |
+
+---
+
+## PortaKit for 0.5X
+
+### 解决了什么
+
+0.5X 版 Reasonix 有四个路径硬伤，换电脑就全没了：
 
 | 问题 | 根因 |
 |------|------|
-| 记忆消失 | 项目记忆按工作区路径哈希命名；路径变了 → 哈希变了 → 找不到了 |
-| 对话历史空白 | 会话元数据里存了旧路径；路径不匹配 → 侧边栏全空 |
-| Skill / MCP 失效 | config.json 里 MCP 路径硬编码了旧盘符 |
-| 所有数据读不到 | Reasonix 默认从 C:\Users\... 取数据，不会主动读当前目录 |
+| 记忆消失 | 项目记忆按工作区路径哈希命名；路径变了 → 哈希变了 → 找不到 |
+| 对话历史空白 | 会话元数据存了旧路径；路径不匹配 → 侧边栏全空 |
+| Skill / MCP 失效 | config.json 里 MCP 路径硬编码了旧盘符（`E:\Reasonix`） |
+| 数据读不到 | Reasonix 默认从 `C:\Users\...` 取数据，不读当前目录 |
 
-### PortaKit 做了什么
+### 做了什么
 
 ```
 双击 启动Reasonix.bat
   │
   ├─ 1. 自动检测当前所在路径（不管在哪个盘、哪个文件夹）
-  ├─ 2. 告诉 Reasonix：「你的数据就在这里，别去 C 盘找了」
-  ├─ 3. SHA1(路径) → 项目哈希 → 创建目录；旧哈希目录自动重命名/合并
-  ├─ 4. 把本机已有的 Reasonix 数据融合进来（只合并更新的，不覆盖）
+  ├─ 2. 设置 HOME / USERPROFILE 指向当前目录
+  ├─ 3. SHA1(路径) → 项目哈希 → 创建/合并记忆目录
+  ├─ 4. 融合本机已有的 Reasonix 数据（只合并更新的，不覆盖）
   ├─ 5. 修补 config.json 里的旧路径 → 当前路径
-  ├─ 6. 修复所有会话元数据（清理 BOM + 修正 JSON + 对齐路径）
+  ├─ 6. 修复所有会话元数据（BOM 清理 + JSON 转义 + 路径对齐）
   └─ 7. 启动 Reasonix
 ```
 
 ### 使用方法
 
-1. 确保已安装 0.5X 版 Reasonix 并配置好 API Key
-2. 将 PortaKit 文件放入 Reasonix 目录（与 `reasonix-desktop.exe` 同级）
-3. **双击 `启动Reasonix.bat`**（之后都用这个启动）
-4. 经历过一次 bat 启动后，整个文件夹即可自由拷贝到 U 盘、同步盘、新电脑
+1. 将 `PortaKit for 0.5X/` 下的所有文件复制到 Reasonix 根目录（与 `reasonix-desktop.exe` 同级）
+2. **双击 `启动Reasonix.bat`**（从此以后都用它启动）
+3. 经历过一次 bat 启动后，整个文件夹即可拷贝到 U 盘/同步盘/新电脑
 
 ### 文件清单
 
@@ -58,60 +57,72 @@
 | `启动Reasonix.bat` | 入口，双击启动 |
 | `_patch_config.ps1` | 核心引擎：路径检测 + 配置修补 + 数据融合 |
 | `_fix_sessions.js` | 会话修复：BOM 清理 + JSON 转义 + 路径对齐 |
-| `node.exe` | Node.js 运行时（自包含） |
-| `npx.cmd` | npm 包执行器 |
-| `PortaKit-核心规则.md` | 供 Reasonix 记忆的便携版规则 |
+| `PortaKit-核心规则.md` | 供 Reasonix 记忆的便携规则 |
+| `autorun.inf` | U 盘 AutoRun（可选） |
 
 ---
 
-## 工具二：迁移升级助手（0.5X → 1.X）
+## PortaKit for 1.X
 
-### 作用
+### v1.7：一个 bat，一行 Junction，彻底便携
 
-将 Reasonix 从 0.5X 升级到 1.X 时，自动迁移以下数据：
+1.X 版 Reasonix 改用 `%APPDATA%\reasonix` 存储数据。当 APPDATA 不在系统盘时（如便携环境），Reasonix 无法正常显示会话。
 
-| 数据类型 | 说明 |
-|---------|------|
-| MCP 配置 | JSON → TOML `[[plugins]]` 格式 |
-| 对话记录 | 重命名 + 四件套（jsonl/meta/telemetry/ckpt） |
-| 运行指标 | token 用量、缓存命中率、费用、依赖文件 |
-| 记忆 | memory/ → projects/<slug>/memory/ |
-| Skill | 新版原生支持 |
+PortaKit v1.7 的核心原理：**NTFS Junction**（目录符号链接），把 `%APPDATA%\reasonix` 重定向到便携目录下的 `portable-data\reasonix`。
 
-### 两种升级场景
+```
+便携目录/
+├── portable-data/
+│   └── reasonix/          ← 实际存储数据的地方
+├── 启动Reasonix.bat       ← 创建 Junction 并启动
+└── reasonix.exe
+```
 
-**场景 [1]：标准安装版升级（C 盘）**
-1. 双击 `0.53配置迁移到1.X.bat` → 选择 `[1]`
-2. 启动新版 Reasonix，点击【历史对话】查看迁移的会话
+### 做了什么
 
-**场景 [2]：PortaKit 便携版升级**
-1. 将 bat 和 ps1 复制到便携版 Reasonix 根目录
-2. 在便携版目录内双击 bat → 选择 `[2]`
-3. 启动新版 Reasonix
+```
+双击 启动Reasonix.bat
+  │
+  ├─ 1. 检测便携目录路径
+  ├─ 2. 创建 portable-data\reasonix（如不存在）
+  ├─ 3. mklink /J "%APPDATA%\reasonix" → "portable-data\reasonix"
+  │     （首次运行：先迁移原有数据，再创建 Junction）
+  ├─ 4. 设置 HOME / USERPROFILE 指向当前目录
+  └─ 5. 启动 Reasonix
+```
 
-### 文件清单
+### 使用方法
 
-| 文件 | 说明 |
-|------|------|
-| `0.53配置迁移到1.X.bat` | 入口，双击运行 |
-| `Migrate-053to1X.ps1` | 核心迁移脚本 |
-| `技术实现.md` | 技术细节 |
-| `研发纪实.md` | 踩坑记录 |
+1. 将 `PortaKit for 1.X/启动Reasonix.bat` 复制到 Reasonix 根目录
+2. **双击 `启动Reasonix.bat`**
+3. 整个文件夹即可自由拷贝
 
-### 迁移效果
+### 与 0.5X 版本的区别
 
-- ✅ 侧边栏不受影响
-- ✅ 历史对话列表显示全部迁移会话
-- ✅ 每条会话保留原始对话标题
-- ✅ "打开会话"可继续未完成的对话
-- ✅ 迁移前自动备份，可安全回滚
-- ✅ 重复运行不会重复迁移已有文件（幂等）
+| | 0.5X | 1.X |
+|------|------|------|
+| 核心方法 | 修补 config.json + 重写会话元数据 | NTFS Junction（`mklink /J`） |
+| 文件数量 | 6 个 | 1 个 bat |
+| 数据位置 | Reasonix 根目录下 `.reasonix/` 等 | `portable-data/reasonix/` |
+| 复杂度 | 高（需要处理路径哈希、会话修复） | 低（Windows 原生能力） |
+
+---
+
+## 0.5X → 1.X 升级迁移
+
+如果你的 Reasonix 从 0.5X 升级到 1.X，可以使用 [Reasonix 迁移升级助手](https://github.com/CS-Faith/reasonix-migration-assistant) 把旧版对话记录、MCP 配置、记忆、Skill 完整迁移过来。
+
+搭配流程：
+1. 用 **PortaKit for 0.5X** 保持 0.5X 版便携可用
+2. 安装 1.X 版 Reasonix，用 **PortaKit for 1.X** 实现便携
+3. 用 [迁移升级助手](https://github.com/CS-Faith/reasonix-migration-assistant) 把 0.5X 数据迁移过来
 
 ---
 
 ## 依赖
 
 - Windows PowerShell 5.1+
+- 1.X 版本依赖 NTFS（不支持 exFAT/FAT32 U 盘）
 - 无需管理员权限
 - 无需网络连接
 
@@ -125,96 +136,117 @@ MIT License
 
 # Reasonix PortaKit (English)
 
-> A complete Reasonix configuration toolkit: portable plug-and-play for 0.5X, seamless migration to 1.X.
+> True portability for Reasonix — path redirection for 0.5X, NTFS Junction for 1.X. USB/sync disk plug-and-play.
 
-## What It Does
+## Why This Repo
 
-This repository provides two tools covering the full Reasonix lifecycle from 0.5X to 1.X:
+Reasonix stores data on the C: drive by default. Switch computers and your memories, conversations, skills, and MCP config all vanish. PortaKit redirects data paths to the current folder on every launch.
 
-| Tool | Version | Purpose |
-|------|:---:|------|
-| **PortaKit** | 0.5X | Make Reasonix truly portable — USB/sync disk plug-and-play |
-| **Migration Assistant** | 0.5X → 1.X | Migrate legacy conversations, MCP, memories, and skills to the latest version |
+Two versions for two generations:
+
+| Version | Target | Method | Files |
+|------|:---:|------|------|
+| **PortaKit for 0.5X** | Reasonix 0.5X | `HOME` / `USERPROFILE` redirection | bat + ps1 + js |
+| **PortaKit for 1.X** | Reasonix 1.X | NTFS Junction (`mklink /J`) | single bat |
 
 ---
 
-## Tool 1: PortaKit (0.5X Portable)
+## PortaKit for 0.5X
 
 ### The Problem
 
-You've tuned Reasonix to perfection — skills installed, MCP servers running, dozens of conversations, project memories built up. Switch computers and **everything is gone**. Copy the entire folder over, still blank.
-
-It's not lost. It's locked behind four hardcoded assumptions:
+Reasonix 0.5X has four hardcoded path assumptions:
 
 | Symptom | Root Cause |
 |---------|-----------|
-| Memories vanish | Project memory directory hashed by workspace path; path changes → hash mismatch |
-| Conversation history empty | Session metadata stores old workspace path; mismatch → all filtered out |
-| Skills / MCP broken | config.json hardcodes MCP paths with old drive letter |
-| Nothing reads from here | Reasonix defaults to C:\Users\..., never looks at your current directory |
+| Memories vanish | Memory dir hashed by workspace path; path changes → hash mismatch |
+| History empty | Session metadata stores old path; mismatch → blank sidebar |
+| Skills / MCP broken | config.json hardcodes paths with old drive letter |
+| Nothing reads | Reasonix defaults to `C:\Users\...`, ignores current dir |
 
-### What PortaKit Does
+### What It Does
 
 ```
-Launch StartReasonix.bat
-  |
-  +-- 1. Detect current path (works on any drive, any folder)
-  +-- 2. Redirect Reasonix to read data from here (not C:\Users\...)
-  +-- 3. SHA1(path) --> project hash --> auto-merge/rename old hash dirs
-  +-- 4. Merge local machine's Reasonix data into this folder
-  +-- 5. Patch config.json -- old paths --> current path
-  +-- 6. Repair all session metadata (strip BOM + fix JSON + align workspace)
-  +-- 7. Launch Reasonix
+Launch 启动Reasonix.bat
+  │
+  ├─ 1. Detect current path (any drive, any folder)
+  ├─ 2. Set HOME / USERPROFILE to current directory
+  ├─ 3. SHA1(path) → project hash → create/merge memory dirs
+  ├─ 4. Merge existing local Reasonix data (newer only, no overwrites)
+  ├─ 5. Patch config.json old paths → current path
+  ├─ 6. Repair all session metadata (BOM strip + JSON fix + path align)
+  └─ 7. Launch Reasonix
 ```
 
-### How to Use
+### Usage
 
-1. Ensure Reasonix 0.5X is installed with API Key configured
-2. Copy PortaKit files to the Reasonix directory (same folder as `reasonix-desktop.exe`)
-3. **Always launch via `StartReasonix.bat`**
-4. After one bat launch, the entire folder becomes portable — copy to USB, sync disk, or new PC
+1. Copy all files from `PortaKit for 0.5X/` to your Reasonix root (next to `reasonix-desktop.exe`)
+2. **Always launch via `启动Reasonix.bat`**
+3. After one bat launch, copy the entire folder to USB/sync disk/new PC
 
 ---
 
-## Tool 2: Migration Assistant (0.5X --> 1.X)
+## PortaKit for 1.X
 
-### Purpose
+### v1.7: One Bat, One Junction, Totally Portable
 
-Automatically migrate the following data when upgrading Reasonix from 0.5X to 1.X:
+Reasonix 1.X stores data at `%APPDATA%\reasonix`. When APPDATA is not on the system drive (portable setup), Reasonix won't show sessions.
 
-| Data Type | Description |
-|-----------|------------|
-| MCP Config | JSON --> TOML `[[plugins]]` format |
-| Conversations | Rename + four-file bundle (jsonl/meta/telemetry/ckpt) |
-| Metrics | Token usage, cache hit rate, cost, dependency files |
-| Memories | memory/ --> projects/<slug>/memory/ |
-| Skills | Natively supported in 1.X |
+PortaKit v1.7 solves this with **NTFS Junction** — a directory symlink that redirects `%APPDATA%\reasonix` to `portable-data\reasonix` inside your portable folder.
 
-### Two Scenarios
+```
+Portable folder/
+├── portable-data/
+│   └── reasonix/          ← actual data location
+├── 启动Reasonix.bat       ← creates Junction and launches
+└── reasonix.exe
+```
 
-**Scenario [1]: Standard C-drive upgrade**
-1. Launch `0.53to1X.bat` --> choose `[1]`
-2. Launch Reasonix 1.X, check History panel
+### What It Does
 
-**Scenario [2]: PortaKit portable upgrade**
-1. Copy bat + ps1 to the portable Reasonix root
-2. Run bat from portable directory --> choose `[2]`
-3. Launch Reasonix 1.X
+```
+Launch 启动Reasonix.bat
+  │
+  ├─ 1. Detect portable folder path
+  ├─ 2. Create portable-data\reasonix if needed
+  ├─ 3. mklink /J "%APPDATA%\reasonix" → "portable-data\reasonix"
+  │     (first run: migrate existing data, then create Junction)
+  ├─ 4. Set HOME / USERPROFILE to current directory
+  └─ 5. Launch Reasonix
+```
 
-### Result
+### Usage
 
-- ✅ Sidebar unaffected
-- ✅ Full session list in History panel
-- ✅ Original conversation titles preserved
-- ✅ Resume unfinished conversations
-- ✅ Auto-backup before migration
-- ✅ Idempotent — safe to run multiple times
+1. Copy `PortaKit for 1.X/启动Reasonix.bat` to your Reasonix root
+2. **Double-click `启动Reasonix.bat`**
+3. The entire folder is now portable
+
+### 0.5X vs 1.X Comparison
+
+| | 0.5X | 1.X |
+|------|------|------|
+| Method | Patch config.json + rewrite session metadata | NTFS Junction (`mklink /J`) |
+| File count | 6 | 1 bat |
+| Data location | `.reasonix/` in Reasonix root | `portable-data/reasonix/` |
+| Complexity | High (path hashes, session repair) | Low (native Windows) |
+
+---
+
+## Migration: 0.5X → 1.X
+
+Upgrading from 0.5X to 1.X? Use the [Reasonix Migration Assistant](https://github.com/CS-Faith/reasonix-migration-assistant) to migrate legacy conversations, MCP config, memories, and skills.
+
+Workflow:
+1. Keep 0.5X portable with **PortaKit for 0.5X**
+2. Install 1.X and make it portable with **PortaKit for 1.X**
+3. Migrate 0.5X data with the [Migration Assistant](https://github.com/CS-Faith/reasonix-migration-assistant)
 
 ---
 
 ## Requirements
 
 - Windows PowerShell 5.1+
+- 1.X version requires NTFS (not compatible with exFAT/FAT32 USB drives)
 - No admin privileges required
 - No network connection required
 

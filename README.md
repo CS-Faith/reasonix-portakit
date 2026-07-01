@@ -255,3 +255,15 @@ Workflow:
 ## License
 
 MIT License
+
+
+---
+
+## 🔗 相关项目
+
+| 项目 | 描述 | 链接 |
+|------|------|------|
+| **Reasonix Migration Assistant** | 0.53 → 1.X 配置迁移升级助手 | [CS-Faith/reasonix-migration-assistant](https://github.com/CS-Faith/reasonix-migration-assistant) |
+| **Knowledge Cleanup** | AI 知识库查重清理 Skill | [CS-Faith/knowledge-cleanup](https://github.com/CS-Faith/knowledge-cleanup) |
+| **LLM Wiki Pipeline** | 端到端知识库构建流水线 | [CS-Faith/llm-wiki-pipeline](https://github.com/CS-Faith/llm-wiki-pipeline) |
+
